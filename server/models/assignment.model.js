@@ -12,6 +12,14 @@ const assignmentSchema = new mongoose.Schema(
             required: true,
             ref: "Project",
         },
+        name: {
+            type: String,
+            required: true,
+        },
+        description: {
+            type: String,
+            required: true,
+        },
         allocationPercentage: {
             type: Number,
             required: true,
@@ -35,7 +43,6 @@ const assignmentSchema = new mongoose.Schema(
             enum: ["active", "completed", "on hold"],
             default: "active",
         },
-
     },
     {
         timestamps: true,

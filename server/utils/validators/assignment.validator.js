@@ -28,6 +28,12 @@ const assignmentValidator = z.object({
             }),
         })
         .default("active"),
+    name: z
+        .string({ required_error: "Name is required" })
+        .nonempty("Name cannot be empty"),
+    description: z
+        .string({ required_error: "Description is required" })
+        .nonempty("Description cannot be empty"),
 });
 
 export default assignmentValidator;
