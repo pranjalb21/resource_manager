@@ -18,17 +18,17 @@ const router = express.Router();
 
 // GET /assignments
 router
+    .get("/project/:project", verifyManager, getAssignmentsByproject)
+    .get("/:assignmentId/engineer", verifyToken, getAssignmentByIdByEngineer)
+    .get("/engineer/me", verifyToken, getAssignmentsByengineer)
     .get("/", verifyManager, getAllAssignmentsByManager)
     .post("/", verifyManager, createAssignmentByManager)
     .patch("/:id", verifyManager, updateAssignmentByIdByManager)
     .delete("/:id", verifyManager, deleteAssignmentById)
-    .get("/project/:project", verifyManager, getAssignmentsByproject)
-    .get("/:assignmentId/engineer", verifyToken, getAssignmentByIdByEngineer)
     .patch(
         "/:assignmentId/engineer/status",
         verifyToken,
         updateAssgnmentStatusByEngineer
-    )
-    .get("/engineer/me", verifyToken, getAssignmentsByengineer);
+    );
 
 export default router;

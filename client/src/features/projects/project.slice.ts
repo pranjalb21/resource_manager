@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { loadProjects } from "./project.apis";
+import { addProject, fetchProjectById, loadProjects } from "./project.apis";
 
 export type ProjectStatus = "planning" | "active" | "completed";
 
@@ -11,7 +11,7 @@ export interface Project {
     endDate?: string; // ISO string
     requiredSkills: string[];
     teamSize: number;
-    status: ProjectStatus;
+    status: string;
     managerId: string;
 }
 
@@ -19,14 +19,14 @@ interface ProjectState {
     project: Project | {};
     projects: Project[];
     loadingProjects: boolean;
-    errors: string | null;
+    errorsProjects: string | null;
 }
 
 const initialState: ProjectState = {
     project: {},
     projects: [],
     loadingProjects: false,
-    errors: null,
+    errorsProjects: null,
 };
 
 const projectSlice = createSlice({
@@ -44,7 +44,33 @@ const projectSlice = createSlice({
         builder.addCase(loadProjects.rejected, (state) => {
             state.projects = [];
             state.loadingProjects = false;
-            state.errors = "Failed to load projects";
+            state.errorsProjects = "Failed to load projects";
+        });
+        builder.addCase(addProject.pending, (state) => {
+            state.loadingProjects = true;
+            state.errorsProjects = null;
+        });
+        builder.addCase(addProject.fulfilled, (state, action) => {
+            state.loadingProjects = false;
+            state.projects.push(action.payload);
+            state.errorsProjects = null;
+        });
+        builder.addCase(addProject.rejected, (state) => {
+            state.loadingProjects = false;
+            state.errorsProjects = "Failed to load projects";
+        });
+        builder.addCase(fetchProjectById.pending, (state) => {
+            state.loadingProjects = false;
+            state.errorsProjects = null;
+        });
+        builder.addCase(fetchProjectById.fulfilled, (state, action) => {
+            state.loadingProjects = false;
+            state.project = action.payload;
+            state.errorsProjects = null;
+        });
+        builder.addCase(fetchProjectById.rejected, (state) => {
+            state.loadingProjects = false;
+            state.errorsProjects = "Failed to load projects";
         });
     },
 });

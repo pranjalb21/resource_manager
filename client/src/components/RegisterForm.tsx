@@ -1,5 +1,9 @@
 import React from "react";
 import { useForm, Controller } from "react-hook-form";
+import type { AppDispatch } from "../store/store";
+import { useDispatch } from "react-redux";
+import { addUser } from "../features/users/user.api";
+import { toast } from "react-toastify";
 
 interface RegisterFormInputs {
     onClose: () => void;
@@ -37,6 +41,7 @@ const RegisterForm: React.FC<RegisterFormInputs> = ({ onClose }) => {
         handleSubmit,
         watch,
         control,
+        reset,
         formState: { errors },
     } = useForm<UserFormInputs>({
         defaultValues: {
@@ -48,17 +53,22 @@ const RegisterForm: React.FC<RegisterFormInputs> = ({ onClose }) => {
     });
 
     const role = watch("role");
-
+    const dispatch: AppDispatch = useDispatch();
     const onSubmit = (data: UserFormInputs) => {
         // Handle form submission (e.g., send to API)
         console.log(data);
+        dispatch(addUser({ ...data, maxCapacity: Number(data.maxCapacity) }))
+            .unwrap()
+            .then(() => toast.success("User added successfully."))
+            .then(() => {
+                onClose();
+                reset();
+            })
+            .catch((err) => toast.error("Unable to add user."));
     };
 
     return (
-        <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="bg-white p-8 rounded w-full max-w-md md:max-w-2xl"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <button
                 className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-2xl font-bold cursor-pointer"
                 onClick={onClose}
@@ -75,7 +85,9 @@ const RegisterForm: React.FC<RegisterFormInputs> = ({ onClose }) => {
                         Name
                     </label>
                     <input
-                        {...register("name", { required: "Name is required" })}
+                        {...register("name", {
+                            required: "Name is required",
+                        })}
                         type="text"
                         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     />

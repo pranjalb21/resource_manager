@@ -1,12 +1,29 @@
 import React from "react";
 import type { User } from "../features/auth/auth.slice";
+import { calculateCapacity } from "../constants/constants";
+import { useSelector } from "react-redux";
+import type { RootState } from "../store/store";
 
 interface ProfileCardProps {
     user: User;
 }
 
 const ProfileCard: React.FC<ProfileCardProps> = ({ user }) => {
-    const capacityPercent = Math.min(100, 0);
+    const { availableUsers } = useSelector((state: RootState) => state.users);
+    const { assignments } = useSelector(
+        (state: RootState) => state.assignments
+    );
+    const userAssignments = assignments.filter((a) =>
+        typeof a.engineer === "string"
+            ? a.engineer === user._id
+            : a.engineer._id === user._id
+    );
+    const { capacity } = calculateCapacity(
+        availableUsers,
+        user,
+        userAssignments
+    );
+    const capacityPercent = Math.min(100, (capacity * 100) / user.maxCapacity);
 
     return (
         <div className="max-w-sm w-full bg-white rounded-lg shadow-md p-6 flex flex-col gap-4">
@@ -22,11 +39,11 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ user }) => {
                 </label>
                 <div className="w-full bg-gray-200 rounded-full h-4 relative">
                     <div
-                        className="bg-blue-500 h-4 rounded-full transition-all duration-300"
-                        style={{ width: `${capacityPercent}%` }}
+                        className={`bg-blue-500 h-4 rounded-full transition-all duration-300`}
+                        style={{ width: `${capacity}%` }}
                     ></div>
                     <span className="absolute right-2 top-0 text-xs text-gray-700 h-4 flex items-center">
-                        {0}/{user.maxCapacity}
+                        {capacity}/{user.maxCapacity}
                     </span>
                 </div>
             </div>

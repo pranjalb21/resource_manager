@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { User } from "../auth/auth.slice";
-import { loadAllUsers } from "./user.api";
+import { addUser, loadAllUsers } from "./user.api";
 
 interface UsersState {
     availableUsers: User[];
@@ -34,6 +34,21 @@ const userSlice = createSlice({
                 state.userLoading = false;
                 state.userError =
                     action.error.message || "Failed to fetch users";
+            })
+            .addCase(addUser.pending, (state) => {
+                state.userLoading = true;
+                state.userError = null;
+            })
+            .addCase(addUser.fulfilled, (state, action) => {
+                state.userLoading = false;
+                state.userError = null;
+                state.availableUsers.push(action.payload);
+            })
+            .addCase(addUser.rejected, (state, action) => {
+                state.userLoading = false;
+                state.userError =
+                    (action.payload as string) ||
+                    "Error occured while adding user.";
             });
     },
 });

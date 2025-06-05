@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 type Assignment = {
     _id?: string;
@@ -47,6 +47,7 @@ export const AssignmentCard: React.FC<AssignmentCardProps> = ({
                 <p className="mb-2 text-gray-700">{assignment.description}</p>
             )}
             <h3 className="text-lg font-semibold mb-2 text-gray-800">
+                Project:{" "}
                 {typeof assignment.project === "object"
                     ? assignment.project.name
                     : assignment.project}

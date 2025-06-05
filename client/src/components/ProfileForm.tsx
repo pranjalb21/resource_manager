@@ -74,12 +74,12 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
         }
         return true;
     };
-    useEffect(() => {
-        if (user) {
-            console.log(user);
-            console.log(initialValues);
-        }
-    }, [user]);
+    // useEffect(() => {
+    //     if (user) {
+    //         console.log(user);
+    //         console.log(initialValues);
+    //     }
+    // }, [user]);
 
     return (
         <div className="max-w-xl mx-auto p-6 bg-white rounded shadow">
@@ -218,21 +218,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                             </button>
                         )}
                     </div>
-                </div>
-
-                <div>
-                    <label className="block font-medium">Password</label>
-                    <input
-                        type="password"
-                        {...register("password", { minLength: 5 })}
-                        disabled={isFieldDisabled("password")}
-                        className="mt-1 block w-full border rounded px-3 py-2 disabled:bg-gray-100"
-                    />
-                    {errors.password && (
-                        <span className="text-red-500 text-sm">
-                            Password must be at least 5 characters
-                        </span>
-                    )}
                 </div>
 
                 {editMode && (

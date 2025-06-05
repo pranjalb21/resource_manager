@@ -1,24 +1,28 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Assignments from "../components/Assignments";
+import { useParams } from "react-router-dom";
+import type { AppDispatch, RootState } from "../store/store";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchProjectById } from "../features/projects/project.apis";
 
 const ProjectDetailsPage: React.FC = () => {
     // Example project data (replace with real data or props)
-    const project = {
-        name: "Resource Management System",
-        description:
-            "A web application to manage resources efficiently across multiple projects.",
-        status: "active",
-        startDate: "2024-06-01",
-        endDate: "2024-12-31",
-        requiredSkills: ["React", "Node.js", "MongoDB"],
-        teamSize: 5,
-        managerId: "665f1a2b3c4d5e6f7a8b9c0d",
-    };
+    // const project = {
+    //     name: "Resource Management System",
+    //     description:
+    //         "A web application to manage resources efficiently across multiple projects.",
+    //     status: "active",
+    //     startDate: "2024-06-01",
+    //     endDate: "2024-12-31",
+    //     requiredSkills: ["React", "Node.js", "MongoDB"],
+    //     teamSize: 5,
+    //     managerId: "665f1a2b3c4d5e6f7a8b9c0d",
+    // };
 
     interface Assignment {
         _id: string;
         engineer: string;
-        name:string,
+        name: string;
         description?: string;
         project: string;
         allocationPercentage: number;
@@ -47,7 +51,8 @@ const ProjectDetailsPage: React.FC = () => {
             _id: "2",
             engineer: "665f1a2b3c4d5e6f7a8b9c02",
             name: "Architecture Design",
-            description: "Lead the technical design and architecture decisions.",
+            description:
+                "Lead the technical design and architecture decisions.",
             project: "665f1a2b3c4d5e6f7a8b9c0d",
             allocationPercentage: 80,
             startDate: "2024-06-15",
@@ -68,23 +73,59 @@ const ProjectDetailsPage: React.FC = () => {
             status: "completed",
         },
     ];
+    const { projectId } = useParams<{ projectId: string }>();
+    const dispatch: AppDispatch = useDispatch();
+    const { project } = useSelector((state: RootState) => state.projects);
+    useEffect(() => {
+        console.log(projectId);
+        if (projectId) {
+            dispatch(fetchProjectById(projectId));
+        }
+    }, [projectId]);
 
+    useEffect(() => {
+        if (project) {
+            console.log(project);
+        }
+    }, [project]);
     return (
         <div className="max-w-4xl mx-auto px-4 py-8">
             <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                 <h1 className="text-2xl md:text-3xl font-bold mb-2 text-gray-800">
-                    {project.name}
+                    {project?.name}
                 </h1>
-                <p className="text-gray-600 mb-4">{project.description}</p>
+                <p className="text-gray-600 mb-4">{project?.description}</p>
                 <div className="flex flex-col md:flex-row md:items-center md:space-x-8 space-y-2 md:space-y-0">
-                    <span className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
-                        {project.status}
+                    <span className="inline-block w-28 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
+                        {project?.status?.charAt(0).toUpperCase() +
+                            project?.status?.slice(1)}
                     </span>
                     <span className="text-gray-500 text-sm">
-                        Start: {project.startDate}
+                        Start:{" "}
+                        {new Date(project.startDate).toLocaleString("en-IN", {
+                            timeZone: "Asia/Kolkata",
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        })}
                     </span>
                     <span className="text-gray-500 text-sm">
-                        End: {project.endDate}
+                        End:{" "}
+                        {project?.endDate
+                            ? new Date(project.endDate).toLocaleString(
+                                  "en-IN",
+                                  {
+                                      timeZone: "Asia/Kolkata",
+                                      year: "numeric",
+                                      month: "short",
+                                      day: "numeric",
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                  }
+                              )
+                            : "Not Mentioned"}
                     </span>
                 </div>
             </div>
@@ -111,7 +152,7 @@ const ProjectDetailsPage: React.FC = () => {
             </div> */}
 
             <div className="bg-white rounded-lg shadow-md p-6 mt-6">
-                <Assignments title="Assignments" assignments={assignments} />
+                <Assignments title="Assignments" projectId={projectId} />
             </div>
         </div>
     );

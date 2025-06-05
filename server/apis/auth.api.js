@@ -1,3 +1,4 @@
+import { ZodError } from "zod";
 import User from "../models/user.model.js";
 import userValidator from "../utils/validators/user.validator.js";
 import jwt from "jsonwebtoken";
@@ -74,33 +75,11 @@ export const loginUser = async (req, res) => {
 export const registerUser = async (req, res) => {
     try {
         // Validate request body using Zod schema
-        const {
-            name,
-            email,
-            password,
-            role,
-            skills,
-            seniority,
-            maxCapacity,
-            department,
-        } = userValidator.parse(req.body);
+        const parsedBody = userValidator.parse(req.body);
 
-        // Check if required fields are present based on user role
-        if (role === "engineer") {
-            if (
-                !Array.isArray(skills) ||
-                !seniority ||
-                !maxCapacity ||
-                !department
-            ) {
-                return res.status(400).json({
-                    error: "Engineer fields (skills, seniority, maxCapacity, department) are required.",
-                });
-            }
-        }
+        const existingUser = await User.findOne({ email: parsedBody.email });
+        console.log(existingUser);
 
-        // Check if user with the same email already exists
-        const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res
                 .status(409)
@@ -108,19 +87,11 @@ export const registerUser = async (req, res) => {
         }
 
         // Create a new user instance
-        const newUser = new User({
-            name,
-            email,
-            password,
-            role,
-            skills: role === "engineer" ? skills : undefined,
-            seniority: role === "engineer" ? seniority : undefined,
-            maxCapacity: role === "engineer" ? maxCapacity : undefined,
-            department: role === "engineer" ? department : undefined,
-        });
+        const newUser = new User(parsedBody);
 
         // Save the new user to the database
         await newUser.save();
+        console.log(newUser);
 
         // Respond with success message and user data
         res.status(201).json({
@@ -128,8 +99,10 @@ export const registerUser = async (req, res) => {
             data: newUser,
         });
     } catch (error) {
+        console.log(error);
         if (error instanceof ZodError) {
             let errorMessage = error.errors.map((err) => err.message);
+
             return res.status(400).json({ error: errorMessage });
         }
         console.log("Error occured while fetching all users:", error);

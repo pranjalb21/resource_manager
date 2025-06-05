@@ -1,5 +1,9 @@
 import React, { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
+import type { AppDispatch } from "../store/store";
+import { useDispatch } from "react-redux";
+import { addProject } from "../features/projects/project.apis";
+import type { Project } from "../features/projects/project.slice";
 
 interface NewProjectFormProps {
     onClose: () => void;
@@ -13,17 +17,25 @@ const statusOptions = [
 
 const NewProjectForm: React.FC<NewProjectFormProps> = ({ onClose }) => {
     // Define form values type
+    const dispatch: AppDispatch = useDispatch();
     type FormValues = {
         name: string;
-        description: string;
+        description?: string;
         startDate: string;
-        endDate: string;
+        endDate?: string;
         requiredSkills: { value: string }[];
         teamSize: number;
         status: string;
-        managerId: string;
     };
-
+    const values = {
+        name: "",
+        description: "",
+        startDate: "",
+        endDate: "",
+        requiredSkills: [{ value: "" }],
+        teamSize: 1,
+        status: "planning",
+    };
     // React Hook Form setup
     const {
         register,
@@ -32,17 +44,9 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ onClose }) => {
         formState: { errors },
         setError,
         clearErrors,
+        reset,
     } = useForm<FormValues>({
-        defaultValues: {
-            name: "",
-            description: "",
-            startDate: "",
-            endDate: "",
-            requiredSkills: [{ value: "" }],
-            teamSize: 1,
-            status: "planning",
-            managerId: "",
-        },
+        defaultValues: values,
     });
 
     const { fields, append, remove } = useFieldArray({
@@ -50,50 +54,37 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ onClose }) => {
         name: "requiredSkills",
     });
 
-    // Custom validation function
-    const validateForm = (data: FormValues) => {
-        let valid = true;
-        clearErrors();
-        if (!data.name.trim()) {
-            setError("name", {
-                type: "manual",
-                message: "Project name is required",
-            });
-            valid = false;
-        }
-        if (!data.startDate) {
-            setError("startDate", {
-                type: "manual",
-                message: "Start date is required",
-            });
-            valid = false;
-        }
-        if (!data.teamSize || data.teamSize < 1) {
-            setError("teamSize", {
-                type: "manual",
-                message: "Team size must be at least 1",
-            });
-            valid = false;
-        }
-        if (!data.managerId.trim()) {
-            setError("managerId", {
-                type: "manual",
-                message: "Manager ID is required",
-            });
-            valid = false;
-        }
-        return valid;
+    type FormDataType = {
+        name: string;
+        startDate: string;
+        status: string;
+        teamSize: number;
+        description?: string;
+        requiredSkills?: string[];
+        endDate?: string;
     };
-
     // Form submit handler
-    const onSubmit = (data: FormValues) => {
-        if (!validateForm(data)) return;
+    const handleSubmitForm = (data: FormValues) => {
         // Transform requiredSkills to string[]
-        const formData = {
-            ...data,
-            requiredSkills: data.requiredSkills.map((s) => s.value),
+        const formData: FormDataType = {
+            name: data.name,
+            startDate: data.startDate,
+            status: data.status,
+            teamSize: data.teamSize,
         };
-        console.log("Form submitted with data:", formData);
+        if (data.description !== "") formData.description = data.description;
+        if (data.requiredSkills.length > 0)
+            formData.requiredSkills = data.requiredSkills
+                ?.map((s) => s.value)
+                .filter((val) => val !== "");
+        if (data.endDate !== "") formData.endDate = data.endDate;
+
+        // console.log("Form submitted with data:", formData);
+        dispatch(addProject(formData))
+            .unwrap()
+            .then(() => reset())
+            .then(() => onClose())
+            .catch((err) => console.log(err));
     };
 
     return (
@@ -112,7 +103,10 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ onClose }) => {
                 <h2 className="text-2xl font-semibold mb-4 text-center">
                     New Project
                 </h2>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <form
+                    onSubmit={handleSubmit(handleSubmitForm)}
+                    className="space-y-4"
+                >
                     <div>
                         <label className="block text-sm font-medium mb-1">
                             Project Name<span className="text-red-500">*</span>
@@ -151,20 +145,52 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ onClose }) => {
                             />
                             {errors.startDate && (
                                 <p className="text-red-500 text-xs mt-1">
-                                    {errors.startDate.message}
+                                    {errors.startDate?.message}
                                 </p>
                             )}
-                        </div>
-                        <div className="flex-1">
-                            <label className="block text-sm font-medium mb-1">
-                                End Date
-                            </label>
-                            <input
-                                type="date"
-                                {...register("endDate")}
+                            {/* <input
+                                type="text"
+                                {...register("name", {
+                                    required: "Project name is required",
+                                    validate: (value) =>
+                                        value.trim() !== "" ||
+                                        "Project name is required",
+                                })}
                                 className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                             />
+                            {errors.name && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.name.message}
+                                </p>
+                            )} */}
                         </div>
+                    </div>
+                    {/* <div>
+                        <label className="block text-sm font-medium mb-1">
+                            Start Date<span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="date"
+                            {...register("startDate", {
+                                required: "Start date is required",
+                            })}
+                            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        />
+                        {errors.startDate && (
+                            <p className="text-red-500 text-xs mt-1">
+                                {errors.startDate.message}
+                            </p>
+                        )}
+                    </div> */}
+                    <div>
+                        <label className="block text-sm font-medium mb-1">
+                            End Date
+                        </label>
+                        <input
+                            type="date"
+                            {...register("endDate")}
+                            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        />
                     </div>
                     <div>
                         <label className="block text-sm font-medium mb-1">
@@ -180,8 +206,7 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ onClose }) => {
                                     {...register(
                                         `requiredSkills.${idx}.value` as const
                                     )}
-                                    className="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                    placeholder={`Skill #${idx + 1}`}
+                                    className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                                 />
                                 {fields.length > 1 && (
                                     <button
@@ -216,6 +241,11 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ onClose }) => {
                                 min={1}
                                 {...register("teamSize", {
                                     valueAsNumber: true,
+                                    required: "Team size must be at least 1",
+                                    min: {
+                                        value: 1,
+                                        message: "Team size must be at least 1",
+                                    },
                                 })}
                                 className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                             />
@@ -240,22 +270,6 @@ const NewProjectForm: React.FC<NewProjectFormProps> = ({ onClose }) => {
                                 ))}
                             </select>
                         </div>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium mb-1">
-                            Manager ID<span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            type="text"
-                            {...register("managerId")}
-                            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            placeholder="Manager's User ID"
-                        />
-                        {errors.managerId && (
-                            <p className="text-red-500 text-xs mt-1">
-                                {errors.managerId.message}
-                            </p>
-                        )}
                     </div>
                     <div className="flex justify-end gap-2 mt-6">
                         <button

@@ -1,5 +1,6 @@
 import assignmentValidator from "../utils/validators/assignment.validator.js";
 import Assignment from "../models/assignment.model.js";
+import mongoose from "mongoose";
 
 export const getAssignmentsByengineer = async (req, res) => {
     try {
@@ -9,7 +10,9 @@ export const getAssignmentsByengineer = async (req, res) => {
         }
 
         // Fetch assignments for the logged-in engineer
-        const assignments = await Assignment.find({ engineer: req.user._id });
+        const assignments = await Assignment.find({
+            engineer: req.user._id,
+        }).populate(["project", { path: "engineer", select: "-password" }]);
 
         // Check if assignments exist for the engineer
         if (!assignments || assignments.length === 0) {
@@ -65,7 +68,7 @@ export const updateAssgnmentStatusByEngineer = async (req, res) => {
             { _id: req.params.assignmentId, engineer: req.user._id },
             { status },
             { new: true }
-        );
+        ).populate(["project", { path: "engineer", select: "-password" }]);
 
         // Check if the assignment was found and updated
         if (!assignment) {
@@ -91,7 +94,9 @@ export const getAssignmentByIdByEngineer = async (req, res) => {
         }
 
         // Fetch the assignment by ID
-        const assignment = await Assignment.findById(req.params.assignmentId);
+        const assignment = await Assignment.findById(
+            req.params.assignmentId
+        ).populate(["project", { path: "engineer", select: "-password" }]);
 
         // Check if the assignment exists
         if (!assignment) {
@@ -131,7 +136,11 @@ export const getAssignmentsByproject = async (req, res) => {
         }
 
         // Fetch assignments by project
-        const assignments = await Assignment.find({ project });
+        const assignments = await Assignment.find({ project }).populate([
+            "project",
+            { path: "engineer", select: "-password" },
+        ]);
+        console.log(assignments);
 
         // Check if assignments exist for the given project
         if (!assignments || assignments.length === 0) {
@@ -219,6 +228,10 @@ export const createAssignmentByManager = async (req, res) => {
 
         // Save the assignment to the database
         await assignment.save();
+        await assignment.populate([
+            "project",
+            { path: "engineer", select: "-password" },
+        ]);
 
         // Respond with the created assignment
         res.status(201).json({
@@ -235,8 +248,8 @@ export const getAllAssignmentsByManager = async (req, res) => {
     try {
         // Fetch all assignments from the database
         const assignments = await Assignment.find().populate([
-            { path: "engineer", select: "-password" },
             "project",
+            { path: "engineer", select: "-password" },
         ]);
 
         // Check if assignments exist

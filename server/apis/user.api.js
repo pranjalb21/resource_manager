@@ -288,7 +288,7 @@ export const getUserOwnProfile = async (req, res) => {
 export const getAllUsersByManager = async (req, res) => {
     try {
         // Fetch all users from the database
-        const users = await User.find();
+        const users = await User.find({ role: "engineer" });
 
         // Check if users array is empty
         if (!(users.length > 0)) {

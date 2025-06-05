@@ -23,6 +23,12 @@ function App() {
     const { loadingStatus, errors } = useSelector(
         (state: RootState) => state.auth
     );
+    const { loadingAssignment } = useSelector(
+        (state: RootState) => state.assignments
+    );
+    const { loadingProjects } = useSelector(
+        (state: RootState) => state.projects
+    );
 
     const initializeUser = () => {
         dispatch(loadUserByToken());
@@ -39,7 +45,9 @@ function App() {
     }, [errors]);
     return (
         <>
-            {loadingStatus && <Loading />}
+            {(loadingStatus || loadingAssignment || loadingProjects) && (
+                <Loading />
+            )}
             <Navbar />
             <Routes>
                 <Route path="/login" element={<LoginPage />} />
@@ -51,7 +59,7 @@ function App() {
                     <Route element={<ProtectedManagerRoutes />}>
                         <Route path="/projects" element={<ProjectsPage />} />
                         <Route
-                            path="/project-details/:project"
+                            path="/project-details/:projectId"
                             element={<ProjectDetailsPage />}
                         />
                         <Route path="/members" element={<MembersPage />} />
