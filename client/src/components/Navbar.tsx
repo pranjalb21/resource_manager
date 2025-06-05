@@ -1,19 +1,19 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
+import type { RootState } from "../store/store";
 
-interface NavbarProps {
-    loggedIn: boolean;
-}
-
-const Navbar: React.FC<NavbarProps> = ({ loggedIn }) => {
+const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState(false);
-
+    const { user, isAuthenticated } = useSelector(
+        (state: RootState) => state.auth
+    );
     const navLinks = [
-        { name: "Home", to: "/" },
-        { name: "Projects", to: "/projects" },
-        { name: "Assignments", to: "/assignments" },
-        { name: "Profile", to: "/profile" },
-        { name: "Members", to: "/members" },
+        { name: "Home", to: "/", role: "" },
+        { name: "Projects", to: "/projects", role: "manager" },
+        { name: "Assignments", to: "/assignments", role: "" },
+        { name: "Profile", to: "/profile", role: "" },
+        { name: "Members", to: "/members", role: "manager" },
     ];
 
     const linkClass = "text-gray-700 hover:text-blue-600 transition-colors";
@@ -36,20 +36,25 @@ const Navbar: React.FC<NavbarProps> = ({ loggedIn }) => {
                         </NavLink>
                     </div>
                     <div className="hidden md:flex space-x-6 items-center">
-                        {navLinks.map((link) => (
-                            <NavLink
-                                key={link.name}
-                                to={link.to}
-                                className={({ isActive }) =>
-                                    isActive
-                                        ? `${linkClass} ${activeClass}`
-                                        : linkClass
-                                }
-                            >
-                                {link.name}
-                            </NavLink>
-                        ))}
-                        {!loggedIn && (
+                        {isAuthenticated &&
+                            navLinks.map(
+                                (link) =>
+                                    (link.role === "" ||
+                                        (user && user.role === link.role)) && (
+                                        <NavLink
+                                            key={link.name}
+                                            to={link.to}
+                                            className={({ isActive }) =>
+                                                isActive
+                                                    ? `${linkClass} ${activeClass}`
+                                                    : linkClass
+                                            }
+                                        >
+                                            {link.name}
+                                        </NavLink>
+                                    )
+                            )}
+                        {!isAuthenticated && (
                             <>
                                 <NavLink
                                     to="/login"
@@ -60,6 +65,20 @@ const Navbar: React.FC<NavbarProps> = ({ loggedIn }) => {
                                     }
                                 >
                                     Login
+                                </NavLink>
+                            </>
+                        )}
+                        {isAuthenticated && (
+                            <>
+                                <NavLink
+                                    to="/logout"
+                                    className={({ isActive }) =>
+                                        isActive
+                                            ? `${linkClass} ${activeClass}`
+                                            : linkClass
+                                    }
+                                >
+                                    Logout
                                 </NavLink>
                             </>
                         )}
@@ -114,7 +133,7 @@ const Navbar: React.FC<NavbarProps> = ({ loggedIn }) => {
                                 {link.name}
                             </NavLink>
                         ))}
-                        {!loggedIn && (
+                        {!isAuthenticated && (
                             <>
                                 <NavLink
                                     to="/login"

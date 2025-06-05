@@ -2,13 +2,13 @@ import React from "react";
 
 type Assignment = {
     _id?: string;
-    engineerId:
+    engineer:
         | {
               _id: string;
               name: string;
           }
         | string;
-    projectId:
+    project:
         | {
               _id: string;
               name: string;
@@ -47,16 +47,16 @@ export const AssignmentCard: React.FC<AssignmentCardProps> = ({
                 <p className="mb-2 text-gray-700">{assignment.description}</p>
             )}
             <h3 className="text-lg font-semibold mb-2 text-gray-800">
-                {typeof assignment.projectId === "object"
-                    ? assignment.projectId.name
-                    : assignment.projectId}
+                {typeof assignment.project === "object"
+                    ? assignment.project.name
+                    : assignment.project}
             </h3>
             <div className="mb-1">
                 <span className="font-medium text-gray-600">Engineer:</span>{" "}
                 <span className="text-gray-800">
-                    {typeof assignment.engineerId === "object"
-                        ? assignment.engineerId.name
-                        : assignment.engineerId}
+                    {typeof assignment.engineer === "object"
+                        ? assignment.engineer.name
+                        : assignment.engineer}
                 </span>
             </div>
             <div className="mb-1">

@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import NewProjectForm from "../components/NewProjectForm";
 import { useNavigate } from "react-router-dom";
+import type { AppDispatch, RootState } from "../store/store";
+import { useDispatch, useSelector } from "react-redux";
+import { loadProjects } from "../features/projects/project.apis";
 
 type Project = {
     _id: string;
@@ -40,8 +43,11 @@ const mockProjects: Project[] = [
 ];
 
 const Projects: React.FC = () => {
-    // Replace mockProjects with data from API in real usage
-    const projects = mockProjects;
+    const dispatch: AppDispatch = useDispatch();
+    useEffect(() => {
+        dispatch(loadProjects());
+    }, [dispatch]);
+    const { projects } = useSelector((state: RootState) => state.projects);
 
     const [showNewProjectForm, setShowNewProjectForm] = React.useState(false);
     // Import the NewProjectForm component

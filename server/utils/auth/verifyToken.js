@@ -19,7 +19,7 @@ const verifyToken = async (req, res, next) => {
     if (!token) {
         return res
             .status(401)
-            .json({ message: "No token provided, authorization denied." });
+            .json({ error: "No token provided, authorization denied." });
     }
 
     try {
@@ -30,7 +30,7 @@ const verifyToken = async (req, res, next) => {
         if (!decoded || !decoded._id) {
             return res
                 .status(401)
-                .json({ message: "Invalid token, authorization denied." });
+                .json({ error: "Invalid token, authorization denied." });
         }
 
         // Find the user by ID
@@ -40,14 +40,14 @@ const verifyToken = async (req, res, next) => {
         if (!user) {
             return res
                 .status(401)
-                .json({ message: "User not found, authorization denied." });
+                .json({ error: "User not found, authorization denied." });
         }
 
         // Attach the user to the request object
         req.user = user;
         next();
     } catch (err) {
-        return res.status(401).json({ message: "Token is not valid." });
+        return res.status(401).json({ error: "Token is not valid." });
     }
 };
 

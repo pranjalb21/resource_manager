@@ -1,21 +1,12 @@
 import React from "react";
+import type { User } from "../features/auth/auth.slice";
 
 interface ProfileCardProps {
-    user: {
-        _id: string;
-        name: string;
-        role: string;
-        capacityOccupied: number;
-        email: string;
-        maxCapacity: number;
-    };
+    user: User;
 }
 
 const ProfileCard: React.FC<ProfileCardProps> = ({ user }) => {
-    const capacityPercent = Math.min(
-        100,
-        Math.round((user.capacityOccupied / user.maxCapacity) * 100)
-    );
+    const capacityPercent = Math.min(100, 0);
 
     return (
         <div className="max-w-sm w-full bg-white rounded-lg shadow-md p-6 flex flex-col gap-4">
@@ -35,7 +26,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ user }) => {
                         style={{ width: `${capacityPercent}%` }}
                     ></div>
                     <span className="absolute right-2 top-0 text-xs text-gray-700 h-4 flex items-center">
-                        {user.capacityOccupied}/{user.maxCapacity}
+                        {0}/{user.maxCapacity}
                     </span>
                 </div>
             </div>

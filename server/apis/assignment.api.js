@@ -1,7 +1,7 @@
 import assignmentValidator from "../utils/validators/assignment.validator.js";
 import Assignment from "../models/assignment.model.js";
 
-export const getAssignmentsByEngineerId = async (req, res) => {
+export const getAssignmentsByengineer = async (req, res) => {
     try {
         // Ensure the user is an engineer
         if (req.user.role !== "engineer") {
@@ -9,7 +9,7 @@ export const getAssignmentsByEngineerId = async (req, res) => {
         }
 
         // Fetch assignments for the logged-in engineer
-        const assignments = await Assignment.find({ engineerId: req.user._id });
+        const assignments = await Assignment.find({ engineer: req.user._id });
 
         // Check if assignments exist for the engineer
         if (!assignments || assignments.length === 0) {
@@ -55,14 +55,14 @@ export const updateAssgnmentStatusByEngineer = async (req, res) => {
             req.user._id.toString() !==
                 (
                     await Assignment.findById(req.params.assignmentId)
-                ).engineerId.toString()
+                ).engineer.toString()
         ) {
             return res.status(403).json({ error: "Access denied" });
         }
 
         // Update the assignment status in the database
         const assignment = await Assignment.findOneAndUpdate(
-            { _id: req.params.assignmentId, engineerId: req.user._id },
+            { _id: req.params.assignmentId, engineer: req.user._id },
             { status },
             { new: true }
         );
@@ -101,7 +101,7 @@ export const getAssignmentByIdByEngineer = async (req, res) => {
         // Check if the user is an engineer and has access to this assignment
         if (
             req.user.role !== "engineer" ||
-            req.user._id.toString() !== assignment.engineerId.toString()
+            req.user._id.toString() !== assignment.engineer.toString()
         ) {
             return res.status(403).json({ error: "Access denied" });
         }
@@ -117,23 +117,23 @@ export const getAssignmentByIdByEngineer = async (req, res) => {
     }
 };
 
-export const getAssignmentsByProjectId = async (req, res) => {
+export const getAssignmentsByproject = async (req, res) => {
     try {
-        // Check if the projectId is provided
-        if (!req.params.projectId) {
+        // Check if the project is provided
+        if (!req.params.project) {
             return res.status(400).json({ error: "Project ID is required" });
         }
-        const { projectId } = req.params;
+        const { project } = req.params;
 
-        // Validate the projectId is a valid MongoDB ObjectId
-        if (!mongoose.isValidObjectId(projectId)) {
+        // Validate the project is a valid MongoDB ObjectId
+        if (!mongoose.isValidObjectId(project)) {
             return res.status(400).json({ error: "Invalid project ID" });
         }
 
-        // Fetch assignments by projectId
-        const assignments = await Assignment.find({ projectId });
+        // Fetch assignments by project
+        const assignments = await Assignment.find({ project });
 
-        // Check if assignments exist for the given projectId
+        // Check if assignments exist for the given project
         if (!assignments || assignments.length === 0) {
             return res
                 .status(404)
@@ -146,7 +146,7 @@ export const getAssignmentsByProjectId = async (req, res) => {
             data: assignments,
         });
     } catch (err) {
-        console.error("Error fetching assignments by projectId:", err);
+        console.error("Error fetching assignments by project:", err);
         res.status(500).send("Internal Server Error");
     }
 };
@@ -234,7 +234,10 @@ export const createAssignmentByManager = async (req, res) => {
 export const getAllAssignmentsByManager = async (req, res) => {
     try {
         // Fetch all assignments from the database
-        const assignments = await Assignment.find();
+        const assignments = await Assignment.find().populate([
+            { path: "engineer", select: "-password" },
+            "project",
+        ]);
 
         // Check if assignments exist
         if (!assignments || assignments.length === 0) {

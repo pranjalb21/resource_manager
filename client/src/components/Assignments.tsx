@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import AssignmentCard from "./AssignmentCard";
+import type { AppDispatch, RootState } from "../store/store";
+import { useDispatch, useSelector } from "react-redux";
+import { loadProjects } from "../features/projects/project.apis";
 
 interface Assignment {
     _id: string;
-    engineerId: string;
-    projectId: string;
+    engineer: string;
+    project: string;
     allocationPercentage: number;
     startDate: string;
     endDate?: string;
@@ -17,13 +20,17 @@ interface Assignment {
 }
 
 interface AssignmentsProps {
-    assignments: Assignment[];
     title: string;
 }
 
-
-
-const Assignments: React.FC<AssignmentsProps> = ({ title, assignments }) => {
+const Assignments: React.FC<AssignmentsProps> = ({ title }) => {
+    const dispatch: AppDispatch = useDispatch();
+    useEffect(() => {
+        dispatch(loadProjects());
+    }, [dispatch]);
+    const { assignments } = useSelector(
+        (state: RootState) => state.assignments
+    );
     return (
         <div className="">
             <h2 className="text-2xl font-bold mb-6 text-gray-800">{title}</h2>

@@ -17,7 +17,7 @@ const router = express.Router();
 router
     .get("/", verifyManager, getAllProjectsByManager)
     .post("/", verifyManager, createProjectByManager)
-    .get("/:projectId", verifyManager, getProjectById)
-    .patch("/:projectId", verifyManager, updateProjectByManager)
-    .delete("/:projectId", verifyManager, deleteProjectByManager);
+    .get("/:project", verifyManager, getProjectById)
+    .patch("/:project", verifyManager, updateProjectByManager)
+    .delete("/:project", verifyManager, deleteProjectByManager);
 export default router;

@@ -1,5 +1,9 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import type { AppDispatch } from "../store/store";
+import { useDispatch } from "react-redux";
+import { loginUser } from "../features/auth/auth.apis";
+import { useNavigate } from "react-router-dom";
 
 type LoginFormInputs = {
     email: string;
@@ -7,6 +11,8 @@ type LoginFormInputs = {
 };
 
 const LoginForm: React.FC = () => {
+    const dispatch: AppDispatch = useDispatch();
+    const navigate = useNavigate();
     const {
         register,
         handleSubmit,
@@ -14,8 +20,17 @@ const LoginForm: React.FC = () => {
     } = useForm<LoginFormInputs>();
 
     const onSubmit = (data: LoginFormInputs) => {
-        console.log("Login form submitted:", data);
         // You can add further validation or authentication logic here
+        dispatch(loginUser(data))
+            .unwrap()
+            .then(() => {
+                navigate("/", { replace: true });
+                console.log("Login successful, redirecting to dashboard");
+            })
+            .catch((error: any) => {
+                console.error("Login failed:", error);
+                // Handle login failure, e.g., show an error message
+            });
     };
 
     return (

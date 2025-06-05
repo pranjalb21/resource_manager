@@ -1,3 +1,7 @@
+import User from "../models/user.model.js";
+import userValidator from "../utils/validators/user.validator.js";
+import jwt from "jsonwebtoken";
+
 // Function to log out user
 export const logOutUser = async (req, res) => {
     try {
@@ -55,7 +59,6 @@ export const loginUser = async (req, res) => {
             maxCapacity: user.maxCapacity,
             department: user.department,
         };
-
         res.status(200).cookie("authToken", token).json({
             message: "Login successful",
             data: userData,

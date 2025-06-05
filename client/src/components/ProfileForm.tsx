@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import ChangePasswordForm from "./ChangePasswordForm";
+import type { RootState } from "../store/store";
+import { useSelector } from "react-redux";
 
 type UserRole = "engineer" | "manager";
 type Seniority = "junior" | "mid" | "senior";
 
 interface ProfileFormValues {
+    _id: string;
     name: string;
     email: string;
     role: UserRole;
@@ -27,7 +30,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 }) => {
     const [editMode, setEditMode] = useState(false);
     const [showChangePassword, setShowChangePassword] = useState(false);
-
+    const { user } = useSelector((state: RootState) => state.auth);
     const {
         register,
         control,
@@ -71,6 +74,12 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
         }
         return true;
     };
+    useEffect(() => {
+        if (user) {
+            console.log(user);
+            console.log(initialValues);
+        }
+    }, [user]);
 
     return (
         <div className="max-w-xl mx-auto p-6 bg-white rounded shadow">

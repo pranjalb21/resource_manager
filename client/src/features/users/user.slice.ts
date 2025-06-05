@@ -1,80 +1,40 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createSlice } from "@reduxjs/toolkit";
+import type { User } from "../auth/auth.slice";
+import { loadAllUsers } from "./user.api";
 
-type User = {
-    _id: string | null;
-    name: string;
-    email: string;
-    role: string;
-    seniority: string;
-    department: string;
-    maxCapacity: number;
-    skills: string[];
-    createdAt: string;
-    updatedAt: string;
-};
-type LoadingStatus = true | false;
-
-interface UserState {
-    user: User;
-    users: User[];
-    isAuthenticated: boolean;
-    loadingStatus: LoadingStatus;
-    errors: string | null;
+interface UsersState {
+    availableUsers: User[];
+    userLoading: boolean;
+    userError: string | null;
 }
 
-const initialState: UserState = {
-    user: {
-        _id: null,
-        email: "",
-        name: "",
-        role: "",
-        seniority: "",
-        department: "",
-        maxCapacity: 0,
-        skills: [],
-        createdAt: "",
-        updatedAt: "",
-    },
-    users: [],
-    isAuthenticated: false,
-    loadingStatus: false,
-    errors: null,
+const initialState: UsersState = {
+    availableUsers: [],
+    userLoading: false,
+    userError: null,
 };
-
-interface PayloadAction<T> {
-    type: string;
-    payload: T;
-}
-
-export const loginUser = createAsyncThunk<
-    User,
-    { email: string; password: string }
->("user/login", async (credentials) => {
-    const response = await axios.post<User>("/api/users/login", credentials);
-    if (response.status !== 200) {
-        throw new Error("Login failed");
-    }
-    return response.data;
-});
 
 const userSlice = createSlice({
-    name: "user",
+    name: "users",
     initialState,
-    reducers: {},
+    reducers: {
+        // Add your synchronous reducers here if needed
+    },
     extraReducers: (builder) => {
-        builder.addCase(loginUser.pending, (state) => {
-            state.loadingStatus = true;
-            state.isAuthenticated = false;
-            state.user = initialState.user;
-            state.errors = null;
-        });
-        builder.addCase(loginUser.fulfilled, (state, action) => {
-            state.loadingStatus = false;
-            state.user = action.payload;
-            state.isAuthenticated = true;
-            state.errors = null;
-        });
+        builder
+            .addCase(loadAllUsers.pending, (state) => {
+                state.userLoading = true;
+                state.userError = null;
+            })
+            .addCase(loadAllUsers.fulfilled, (state, action) => {
+                state.userLoading = false;
+                state.availableUsers = action.payload;
+            })
+            .addCase(loadAllUsers.rejected, (state, action) => {
+                state.userLoading = false;
+                state.userError =
+                    action.error.message || "Failed to fetch users";
+            });
     },
 });
 

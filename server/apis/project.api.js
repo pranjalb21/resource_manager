@@ -5,18 +5,18 @@ import Project from "../models/project.model.js";
 export const deleteProjectByManager = async (req, res) => {
     try {
         // Validate the project ID
-        if (!req.params.projectId) {
+        if (!req.params.project) {
             return res.status(400).send("Project ID is required");
         }
 
         // Check if the project ID is a valid MongoDB ObjectId
-        if (!mongoose.isValidObjectId(req.params.projectId)) {
+        if (!mongoose.isValidObjectId(req.params.project)) {
             return res.status(400).send("Invalid Project ID");
         }
 
         // Delete the project by ID
         const deletedProject = await Project.findByIdAndDelete(
-            req.params.projectId
+            req.params.project
         );
 
         // Check if the project was found and deleted
@@ -37,12 +37,12 @@ export const deleteProjectByManager = async (req, res) => {
 export const updateProjectByManager = async (req, res) => {
     try {
         // Validate the project ID
-        if (!req.params.projectId) {
+        if (!req.params.project) {
             return res.status(400).send("Project ID is required");
         }
 
         // Check if the project ID is a valid MongoDB ObjectId
-        if (!mongoose.isValidObjectId(req.params.projectId)) {
+        if (!mongoose.isValidObjectId(req.params.project)) {
             return res.status(400).send("Invalid Project ID");
         }
 
@@ -54,7 +54,7 @@ export const updateProjectByManager = async (req, res) => {
 
         // Update the project with the new data
         const updatedProject = await Project.findByIdAndUpdate(
-            req.params.projectId,
+            req.params.project,
             parsedBody,
             { new: true }
         );
@@ -78,17 +78,17 @@ export const updateProjectByManager = async (req, res) => {
 export const getProjectById = async (req, res) => {
     try {
         // Validate the project ID
-        if (!req.params.projectId) {
+        if (!req.params.project) {
             return res.status(400).send("Project ID is required");
         }
 
         // Check if the project ID is a valid MongoDB ObjectId
-        if (!mongoose.isValidObjectId(req.params.projectId)) {
+        if (!mongoose.isValidObjectId(req.params.project)) {
             return res.status(400).send("Invalid Project ID");
         }
 
         // Fetch the project by ID
-        const project = await Project.findById(req.params.projectId);
+        const project = await Project.findById(req.params.project);
 
         // Check if the project exists
         if (!project) {

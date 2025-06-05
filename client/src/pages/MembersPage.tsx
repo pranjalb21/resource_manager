@@ -1,41 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ProfileCard from "../components/ProfileCard";
 import RegisterForm from "../components/RegisterForm";
-
-// Dummy users data for demonstration. Replace with actual data fetching.
-const users = [
-    {
-        _id: "1",
-        name: "Alice Smith",
-        email: "alice@example.com",
-        role: "Developer",
-        maxCapacity: 100,
-        capacityOccupied: 30,
-    },
-    {
-        _id: "2",
-        name: "Bob Johnson",
-        email: "bob@example.com",
-        role: "Designer",
-        maxCapacity: 100,
-        capacityOccupied: 30,
-    },
-    {
-        _id: "3",
-        name: "Charlie Lee",
-        email: "charlie@example.com",
-        role: "Manager",
-        maxCapacity: 100,
-        capacityOccupied: 30,
-    },
-];
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../store/store";
+import { loadAllUsers } from "../features/users/user.api";
 
 const MembersPage: React.FC = () => {
     const [showRegisterForm, setShowRegisterForm] = useState(false);
 
     const handleAddMember = () => setShowRegisterForm(true);
     const handleCloseForm = () => setShowRegisterForm(false);
-
+    const dispatch: AppDispatch = useDispatch();
+    const { availableUsers } = useSelector((state: RootState) => state.users);
+    useEffect(() => {
+        dispatch(loadAllUsers());
+    }, [dispatch]);
+    useEffect(() => {
+        if (availableUsers) {
+            console.log(availableUsers, "availableUsers");
+        }
+    }, [availableUsers]);
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center py-8 px-4 sm:px-6 lg:px-8">
             <div className="w-full max-w-6xl flex-1 flex flex-col">
@@ -50,7 +34,7 @@ const MembersPage: React.FC = () => {
                 </div>
 
                 <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                    {users.map((user) => (
+                    {availableUsers.map((user) => (
                         <ProfileCard key={user._id} user={user} />
                     ))}
                 </div>

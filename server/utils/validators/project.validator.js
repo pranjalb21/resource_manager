@@ -13,10 +13,7 @@ const projectValidator = z.object({
         required_error: "Start date is required",
         invalid_type_error: "Invalid start date",
     }),
-    endDate: z.coerce.date({
-        required_error: "End date is required",
-        invalid_type_error: "Invalid end date",
-    }),
+    endDate: z.date().optional(),
     requiredSkills: z.array(
         z
             .string({ required_error: "Skill is required" })
