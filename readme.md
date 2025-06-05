@@ -7,7 +7,10 @@
 -   MongoDB
 -   React
 -   JavaScript (ES6+)
--   CSS/HTML
+-   TailWind
+-   TypeScript
+-   Redux
+-   ReduxThunk
 
 ## Setup Instructions
 
@@ -66,4 +69,4 @@
 -   RESTful API with Express.js
 -   MongoDB integration for persistent storage
 -   Error handling and input validation
--   Activity logging and audit trail
+-   Activity logging
