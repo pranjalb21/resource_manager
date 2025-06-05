@@ -20,7 +20,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware setup
-app.use(cors());
+app.use(
+    cors({
+        origin: "*",
+    })
+);
 app.use(bodyParser.json());
 app.use(cookieParser());
 
@@ -40,5 +44,5 @@ app.use("/api/v1/assignments", assignmentRouter);
 
 // Start the server
 app.listen(PORT, () => {
-    console.log(`Server started on port ${PORT}`)
+    console.log(`Server started on port ${PORT}`);
 });
